@@ -24,9 +24,10 @@ jobs:
               - 'backend/**'
               - 'database/**'
               - 'frontend/**'
-              - 'Dockerfile'
 
   build-push-scan:
+    needs: changes
+    if: needs.changes.outputs.run_ci == 'true'
     runs-on: ubuntu-latest
 
     env:
@@ -74,7 +75,7 @@ jobs:
           name: trivy-report
           path: trivy-report.txt
 
-          # =========================
+# =========================
 # CD JOB
 # =========================
 
@@ -109,4 +110,61 @@ jobs:
         - name: Terraform Apply
           working-directory: Infra
           run: terraform apply -auto-approve tfplan
+
+  deploy-to-aks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+ 
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4  
+
+      - name: Get AKS credentials
+        run: |
+          az aks get-credentials \
+          --resource-group ${{ vars.RG_NAME }} \
+          --name ${{ vars.AKS_NAME }} \
+          --overwrite-existing  
+
+      - name: Wait cluster ready
+        run: |
+            az aks wait \
+            --resource-group ${{ vars.RG_NAME }} \
+            --name ${{ vars.AKS_NAME }} \
+            --created
+
+      - name: Verify cluster
+        run: |
+            kubectl cluster-info
+            kubectl get nodes
+
+      - name: Install ingress if missing
+        run: |
+            if ! kubectl get deployment ingress-nginx-controller -n ingress-nginx; then
+              kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+            else
+              echo "Ingress controller already exists"
+            fi
+      
+      - name: Deploy Kubernetes resources
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          
+          sleep 20s
+
+          kubectl apply -f k8s/postgres-configmap.yaml
+
+          kubectl apply -f k8s/database
+
+          kubectl apply -f k8s/backend
+          kubectl apply -f k8s/frontend
+
+          kubectl apply -f k8s/Ingress
 
