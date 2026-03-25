@@ -1,4 +1,4 @@
-# Full‑Stack Web Application with CI/CD
+# Full‑Stack user management Application with CI/CD
 
 A full‑stack web application with **backend API**, **frontend UI**, and **PostgreSQL database**, deployed to **Kubernetes on Azure AKS** using an automated GitHub Actions pipeline with Docker and Terraform.
 
