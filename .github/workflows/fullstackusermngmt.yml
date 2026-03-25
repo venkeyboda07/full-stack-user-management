@@ -22,10 +22,10 @@ jobs:
               run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
             - name: Build Backend Image
-              run: docker build -t $DOCKER_USERNAME//backend:latest ./backend
+              run: docker build -t $DOCKER_USERNAME/backend:latest ./backend
 
             - name: Build Frontend Image
-              run: docker build -t $DOCKER_USERNAME//frontend:latest ./frontend
+              run: docker build -t $DOCKER_USERNAME/frontend:latest ./frontend
 
             - name: Push Backend Image
               run: docker push $DOCKER_USERNAME/backend:latest
