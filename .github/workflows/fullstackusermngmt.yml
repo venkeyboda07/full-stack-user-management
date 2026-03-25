@@ -5,41 +5,108 @@ on:
       branches:
         - main
 jobs:
+  changes:
 
-    build-push-scan:
-        runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
+    outputs:
+      run_ci: ${{ steps.filter.outputs.ci }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+  
+      - name: Filter changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            ci:
+              - 'backend/**'
+              - 'database/**'
+              - 'frontend/**'
+              - 'Dockerfile'
 
-        env:
-            DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-            DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  build-push-scan:
+    runs-on: ubuntu-latest
 
-        steps:
+    env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-            - name: Checkout source code
-              uses: actions/checkout@v4
+    steps:
 
-            - name: Login to DockerHub
-              run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - name: Checkout source code
+        uses: actions/checkout@v4
 
-            - name: Build Backend Image
-              run: docker build -t $DOCKER_USERNAME/backend:latest ./backend
+      - name: Login to DockerHub
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-            - name: Build Frontend Image
-              run: docker build -t $DOCKER_USERNAME/frontend:latest ./frontend
+      - name: Build Backend Image
+        run: docker build -t $DOCKER_USERNAME/backend:latest ./backend
 
-            - name: Push Backend Image
-              run: docker push $DOCKER_USERNAME/backend:latest
+      - name: Build Frontend Image
+        run: docker build -t $DOCKER_USERNAME/frontend:latest ./frontend
 
-            - name: Push Frontend Image
-              run: docker push $DOCKER_USERNAME/frontend:latest 
+      - name: Push Backend Image
+        run: docker push $DOCKER_USERNAME/backend:latest
 
-            - name: Install Trivy
-              run: |
-                    wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.69.3_Linux-64bit.deb
-                    sudo dpkg -i trivy_0.69.3_Linux-64bit.deb
+      - name: Push Frontend Image
+        run: docker push $DOCKER_USERNAME/frontend:latest 
 
-            - name: Trivy scan Backend
-              run: trivy image -f table $DOCKER_USERNAME/backend:latest > trivy-report.txt
+      - name: Install Trivy
+        run: |
+            wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.69.3_Linux-64bit.deb
+            sudo dpkg -i trivy_0.69.3_Linux-64bit.deb
+
+      - name: Trivy scan Backend
+        run: |
+            echo "===== BACKEND IMAGE =====" > trivy-report.txt
+            trivy image -f table $DOCKER_USERNAME/backend:latest >> trivy-report.txt
+                     
+      - name: Trivy scan Frontend
+        run: |
+            echo "===== FRONTEND IMAGE =====" >> trivy-report.txt
+            trivy image -f table $DOCKER_USERNAME/frontend:latest >> trivy-report.txt
                   
-            - name: Trivy scan Frontend
-              run: trivy image -f table $DOCKER_USERNAME/frontend:latest >> trivy-report.txt
+      - name: Upload Trivy Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.txt
+
+          # =========================
+# CD JOB
+# =========================
+
+  aks-infrastructure-provisioning:
+      runs-on: ubuntu-latest    
+
+      steps:
+
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: Azure Login
+          uses: azure/login@v2
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v3
+
+        - name: Terraform Init
+          working-directory: Infra
+          run: terraform init
+
+        - name: Terraform Plan
+          working-directory: Infra
+          run: |
+            terraform plan \
+                -var-file="terraform.tfvars" \
+                -input=false \
+                -out=tfplan
+
+        - name: Terraform Apply
+          working-directory: Infra
+          run: terraform apply -auto-approve tfplan
+
