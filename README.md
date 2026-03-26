@@ -1,4 +1,4 @@
-# Full‑Stack user management Application with CI/CD
+# Full‑Stack user management Application with CI/CD using Github actions
 
 A full‑stack web application with **backend API**, **frontend UI**, and **PostgreSQL database**, deployed to **Kubernetes on Azure AKS** using an automated GitHub Actions pipeline with Docker and Terraform.
 
@@ -245,14 +245,14 @@ kubectl logs -f deployment/backend -n <namespace>
 
 ![cluster](docs/ingress_alb.jpg)
 
-### backend
+### backend API and backend DB
 ```bash
 http://<<ingress-ip>>/api/users
 ```
 ![Frontend UI](docs/backend.jpg)
 ![Frontend UI](docs/backend_users.jpg)
 
-### frontend
+### frontend UI and frontend add users
 ```bash
 http://<<ingress-ip>>
 ```
