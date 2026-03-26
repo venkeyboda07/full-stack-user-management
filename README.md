@@ -241,16 +241,9 @@ kubectl get services -n <namespace>
 kubectl get ingress -n <namespace>
 kubectl logs -f deployment/backend -n <namespace>
 ```
-## check the all Kubernetes Resources Running (pods,services and ingress)
+## Check the all Kubernetes Resources Running (pods,services and ingress)
 
 ![cluster](docs/ingress_alb.jpg)
-
-### backend API and backend DB
-```bash
-http://<<ingress-ip>>/api/users
-```
-![Frontend UI](docs/backend.jpg)
-![Frontend UI](docs/backend_users.jpg)
 
 ### frontend UI and frontend add users
 ```bash
@@ -258,6 +251,13 @@ http://<<ingress-ip>>
 ```
 ![Frontend UI](docs/frontend.jpg)
 ![Frontend UI](docs/frontend_users.jpg)
+
+### backend API and backend DB
+```bash
+http://<<ingress-ip>>/api/users
+```
+![Frontend UI](docs/backend.jpg)
+![Frontend UI](docs/backend_users.jpg)
 
 ## Contribution and Usage
     - If you want to contribute: open an issue or PR describing the change.
