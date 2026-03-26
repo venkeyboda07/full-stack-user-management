@@ -18,46 +18,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set Final Status
-        id: final
-        run: |
-          if [[ "${{ inputs.ci_status }}" == "success" && \
-                "${{ inputs.infra_status }}" == "success" && \
-                "${{ inputs.deploy_status }}" == "success" ]]; then
-            echo "status=SUCCESS" >> $GITHUB_OUTPUT
-          else
-            echo "status=FAILED" >> $GITHUB_OUTPUT
-          fi
+        - name: Set Final Status
+          id: final
+          run: |
+            if [[ "${{ inputs.ci_status }}" == "success" && \
+                    "${{ inputs.infra_status }}" == "success" && \
+                    "${{ inputs.deploy_status }}" == "success" ]]; then
+                echo "status=SUCCESS" >> $GITHUB_OUTPUT
+            else
+                echo "status=FAILED" >> $GITHUB_OUTPUT
+            fi
 
-      - name: Send Email
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
+        - name: Send Email
+          uses: dawidd6/action-send-mail@v3
+          with:
+            server_address: smtp.gmail.com
+            server_port: 465
+            username: ${{ secrets.EMAIL_USERNAME }}
+            password: ${{ secrets.EMAIL_PASSWORD }}
 
-          subject: |
-            🚀 Pipeline ${{ steps.final.outputs.status }} - ${{ github.repository }}
+            subject: |
+                ${{ steps.final.outputs.status == 'SUCCESS' && '✅' || '❌' }} CI/CD Pipeline ${{ steps.final.outputs.status }} - ${{ github.repository }}
 
-          to: ${{ secrets.EMAIL_IDS }}
-          from: ${{ secrets.EMAIL_USERNAME }}
+            to: venkeyboda02@gmail.com
+            from: ${{ secrets.EMAIL_USERNAME }}
 
-          body: |
-            🔔 Pipeline Notification
+            body: |
+                🚀 CI/CD Pipeline Notification
 
-            Status: ${{ steps.final.outputs.status }}
+                📊 Final Status: ${{ steps.final.outputs.status == 'SUCCESS' && '✅ SUCCESS' || '❌ FAILED' }}
 
-            Repository: ${{ github.repository }}
-            Branch: ${{ github.ref_name }}
-            Triggered By: ${{ github.actor }}
+                📦 Repository: ${{ github.repository }}
+                🌿 Branch: ${{ github.ref_name }}
+                👤 Triggered By: ${{ github.actor }}
 
-            Job Results:
-            - CI: ${{ inputs.ci_status }}
-            - Infra: ${{ inputs.infra_status }}
-            - Deployment: ${{ inputs.deploy_status }}
+                📝 Commit Message:
+                ${{ github.event.head_commit.message }}
 
-            View Pipeline:
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+                🔍 Job Results:
+                ---------------------------------
+                🏗️ CI (Build & Scan): ${{ needs.build-push-scan.result == 'success' && '✅ Success' || '❌ Failed' }}
+                    🏗️ Infra (Terraform): ${{ needs.aks-infrastructure-provisioning.result == 'success' && '✅ Success' || '❌ Failed' }}
+                🚀 Deployment (AKS): ${{ needs.deploy-to-aks.result == 'success' && '✅ Success' || '❌ Failed' }}
 
-            
+                🔗 View Pipeline:
+                https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+                ⏱️ Run ID: ${{ github.run_id }}
