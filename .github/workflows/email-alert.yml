@@ -83,16 +83,16 @@ jobs:
 
             content_type: text/html
 
-            body: |
+            html_body: |
                 <h2>🚀 CI/CD Pipeline Notification</h2>
 
                 <p>
-                <strong>📊 Final Status:</strong>
+                <strong>📊 Pipeline Status:</strong>
                 ${{ steps.final.outputs.status == 'SUCCESS' && '<span style="color:green;"><b>✅ SUCCESS</b></span>' || '<span style="color:red;"><b>❌ FAILED</b></span>' }}
                 </p>
 
                 <p><strong>📦 Repository:</strong> ${{ github.repository }}</p>
-                <p><strong>🌿 Branch:</strong> ${{ github.ref_name }}</p>
+                <p><strong>🌿 Branch:</strong> ${{ github.ref }}</p>
                 <p><strong>👤 Triggered By:</strong> ${{ github.actor }}</p>
 
                 <p><strong>📝 Commit Message:</strong><br/>${{ github.event.head_commit.message }}</p>
