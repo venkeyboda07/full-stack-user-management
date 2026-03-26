@@ -29,6 +29,44 @@ jobs:
                 echo "status=FAILED" >> $GITHUB_OUTPUT
             fi
 
+        # - name: Send Email
+        #   uses: dawidd6/action-send-mail@v3
+        #   with:
+        #     server_address: smtp.gmail.com
+        #     server_port: 465
+        #     username: ${{ secrets.EMAIL_USERNAME }}
+        #     password: ${{ secrets.EMAIL_PASSWORD }}
+
+        #     subject: |
+        #         ${{ steps.final.outputs.status == 'SUCCESS' && '✅' || '❌' }} CI/CD Pipeline ${{ steps.final.outputs.status }} - ${{ github.repository }}
+
+        #     to: venkeyboda02@gmail.com
+        #     from: ${{ secrets.EMAIL_USERNAME }}
+
+        #     body: |
+        #         🚀 CI/CD Pipeline Notification:
+
+        #         📊 Pipeline Status: ${{ steps.final.outputs.status == 'SUCCESS' && '✅ SUCCESS' || '❌ FAILED' }}
+
+        #         📦 Repository: ${{ github.repository }}
+        #         🌿 Branch: ${{ github.ref }}
+        #         👤 Triggered By: ${{ github.actor }}
+        #         🔑 Commit SHA: ${{ github.sha }}
+
+        #         📝 Commit Message:
+        #         ${{ github.event.head_commit.message }}
+
+        #         🔍 Job Results:
+        #         ---------------------------------
+        #         🏗️ CI (Build & Scan): ${{ needs.build-push-scan.result == 'success' && '✅ Success' || '❌ Failed' }}
+        #             🏗️ Infra (Terraform): ${{ needs.aks-infrastructure-provisioning.result == 'success' && '✅ Success' || '❌ Failed' }}
+        #         🚀 Deployment (AKS): ${{ needs.deploy-to-aks.result == 'success' && '✅ Success' || '❌ Failed' }}
+
+        #         🔗 View Pipeline:
+        #         https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+        #         ⏱️ Run ID: ${{ github.run_id }}
+
         - name: Send Email
           uses: dawidd6/action-send-mail@v3
           with:
@@ -43,25 +81,56 @@ jobs:
             to: venkeyboda02@gmail.com
             from: ${{ secrets.EMAIL_USERNAME }}
 
+            content_type: text/html
+
             body: |
-                🚀 CI/CD Pipeline Notification
+                <h2>🚀 CI/CD Pipeline Notification</h2>
 
-                📊 Final Status: ${{ steps.final.outputs.status == 'SUCCESS' && '✅ SUCCESS' || '❌ FAILED' }}
+                <p>
+                <strong>📊 Final Status:</strong>
+                ${{ steps.final.outputs.status == 'SUCCESS' && '<span style="color:green;"><b>✅ SUCCESS</b></span>' || '<span style="color:red;"><b>❌ FAILED</b></span>' }}
+                </p>
 
-                📦 Repository: ${{ github.repository }}
-                🌿 Branch: ${{ github.ref_name }}
-                👤 Triggered By: ${{ github.actor }}
+                <p><strong>📦 Repository:</strong> ${{ github.repository }}</p>
+                <p><strong>🌿 Branch:</strong> ${{ github.ref_name }}</p>
+                <p><strong>👤 Triggered By:</strong> ${{ github.actor }}</p>
 
-                📝 Commit Message:
-                ${{ github.event.head_commit.message }}
+                <p><strong>📝 Commit Message:</strong><br/>${{ github.event.head_commit.message }}</p>
+                <p><strong>🔑 Commit SHA:</strong> ${{ github.sha }}</p>
 
-                🔍 Job Results:
-                ---------------------------------
-                🏗️ CI (Build & Scan): ${{ needs.build-push-scan.result == 'success' && '✅ Success' || '❌ Failed' }}
-                    🏗️ Infra (Terraform): ${{ needs.aks-infrastructure-provisioning.result == 'success' && '✅ Success' || '❌ Failed' }}
-                🚀 Deployment (AKS): ${{ needs.deploy-to-aks.result == 'success' && '✅ Success' || '❌ Failed' }}
+                <h3>🔍 Job Results</h3>
+                <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse;">
+                <tr>
+                    <th>Stage</th>
+                    <th>Status</th>
+                </tr>
+                <tr>
+                    <td><b>🏗️ CI (Build & Scan)</b></td>
+                    <td>
+                    ${{ needs.build-push-scan.result == 'success' && '<span style="color:green;"><b>SUCCESS</b></span>' || '<span style="color:red;"><b>FAILED</b></span>' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td><b>🏗️ Infra (Terraform)</b></td>
+                    <td>
+                    ${{ needs.aks-infrastructure-provisioning.result == 'success' && '<span style="color:green;"><b>SUCCESS</b></span>' || '<span style="color:red;"><b>FAILED</b></span>' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td><b>🚀 Deployment (AKS)</b></td>
+                    <td>
+                    ${{ needs.deploy-to-aks.result == 'success' && '<span style="color:green;"><b>SUCCESS</b></span>' || '<span style="color:red;"><b>FAILED</b></span>' }}
+                    </td>
+                </tr>
+                </table>
 
-                🔗 View Pipeline:
-                https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+                <br/>
 
-                ⏱️ Run ID: ${{ github.run_id }}
+                <p>
+                <strong>🔗 Pipeline Link:</strong><br/>
+                <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
+                    View Full Pipeline
+                </a>
+                </p>
+
+                <p><strong>⏱️ Run ID:</strong> ${{ github.run_id }}</p>        
