@@ -118,8 +118,13 @@ jobs:
 
   deploy-to-aks:
     runs-on: ubuntu-latest
-    needs: [changes, aks-infrastructure-provisioning]
-    if: needs.changes.outputs.run_app == 'true' || needs.changes.outputs.run_infra == 'true'
+    # needs: [changes, aks-infrastructure-provisioning]
+    needs: [changes, build-push-scan, aks-infrastructure-provisioning]
+
+    if: |
+      always() &&
+      (needs.changes.outputs.run_app == 'true' || needs.changes.outputs.run_infra == 'true')
+
     steps:
       - name: checkout
         uses: actions/checkout@v4
