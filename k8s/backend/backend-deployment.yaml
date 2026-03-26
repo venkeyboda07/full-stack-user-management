@@ -31,3 +31,28 @@ spec:
             - name: DB_NAME
               value: usersdb
 
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+
+            initialDelaySeconds: 10
+            periodSeconds: 15
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+
+            initialDelaySeconds: 20
+            periodSeconds: 30
+
