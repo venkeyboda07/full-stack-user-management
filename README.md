@@ -241,7 +241,7 @@ kubectl get services -n <namespace>
 kubectl get ingress -n <namespace>
 kubectl logs -f deployment/backend -n <namespace>
 ```
-## check the all pods and servicess and ingress loadbalncer ip
+## check the all Kubernetes Resources Running (pods,services and ingress)
 
 ![cluster](docs/ingress_alb.jpg)
 
