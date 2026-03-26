@@ -30,7 +30,6 @@ spec:
 
             - name: DB_NAME
               value: usersdb
-
           resources:
             requests:
               memory: "128Mi"
@@ -44,7 +43,6 @@ spec:
             httpGet:
               path: /health
               port: 5000
-
             initialDelaySeconds: 10
             periodSeconds: 15
 
@@ -52,7 +50,5 @@ spec:
             httpGet:
               path: /health
               port: 5000
-
             initialDelaySeconds: 20
             periodSeconds: 30
-

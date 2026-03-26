@@ -9,7 +9,7 @@ This repo contains:
 - `frontend/` – Frontend application (React / Vue / Angular)
 - `database/` – Database schema and migrations
 - `Infra/` – Terraform scripts to provision Azure resources (AKS, ACR, networking)
-- `k8s/` – Kubernetes manifests for deployments, services, and ingress
+- `kubernetes/` – Kubernetes manifests for deployments, services, and ingress
 - `.github/workflows/` – CI/CD pipeline for build, push, and deploy
 
 The pipeline:
@@ -38,11 +38,11 @@ The pipeline:
 | `Dockerfile` | Multi‑stage Docker build for backend/frontend |
 | `Infra/terraform.tfvars` | Terraform variables for Azure resources |
 | `Infra/main.tf`, `Infra/aks.tf` | Terraform config for AKS and infra |
-| `k8s/namespace.yaml` | Kubernetes application namespace |
-| `k8s/postgres-*.yaml` | PostgreSQL deployment, service, and config |
-| `k8s/backend-*.yaml` | Backend deployment and service |
-| `k8s/frontend-*.yaml` | Frontend deployment and service |
-| `k8s/ingress.yaml` | Ingress routing for backend/frontend |
+| `kubernetes/namespace.yaml` | Kubernetes application namespace |
+| `kubernetes/postgres-*.yaml` | PostgreSQL deployment, service, and config |
+| `kubernetes/backend-*.yaml` | Backend deployment and service |
+| `kubernetes/frontend-*.yaml` | Frontend deployment and service |
+| `kubernetes/ingress.yaml` | Ingress routing for backend/frontend |
 
 ---
 
@@ -73,7 +73,7 @@ The GitHub Actions workflow:
    - Logs into Azure and AKS using `az aks get-credentials`.
    - Waits for cluster readiness.
    - Installs NGINX Ingress (if not present).
-   - Applies all manifests in the `k8s/` directory.
+   - Applies all manifests in the `kubernetes/` directory.
 
 ---
 
@@ -213,7 +213,7 @@ http://localhost:3000
 ### What happens in the pipeline:
     - New Docker images are built and pushed.
     - Terraform updates the Azure infrastructure (AKS, networking, etc.).
-    - Kubernetes manifests in k8s/ are applied to AKS.
+    - Kubernetes manifests in kubernetes/ are applied to AKS.
     - NGINX Ingress routes traffic to backend and frontend.
 
 ### To trigger a deployment:
@@ -262,7 +262,7 @@ http://<<ingress-ip>>/api/users
 ## Contribution and Usage
     - If you want to contribute: open an issue or PR describing the change.
     - If you want to fork or reuse: follow the license (see below).
-    - If you want to customize deployment: adjust the Terraform configs in Infra/  and Kubernetes manifests in k8s/.
+    - If you want to customize deployment: adjust the Terraform configs in Infra/  and Kubernetes manifests in kubernetes/.
 
 📄 License
 This project is licensed under the MIT License. See the LICENSE file for details.

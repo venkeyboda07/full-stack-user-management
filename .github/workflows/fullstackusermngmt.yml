@@ -165,18 +165,18 @@ jobs:
       
       - name: Deploy Kubernetes resources
         run: |
-          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f kubernetes/namespace.yaml
           
           sleep 20s
 
-          kubectl apply -f k8s/postgres-configmap.yaml
+          kubectl apply -f kubernetes/postgres-configmap.yaml
 
-          kubectl apply -f k8s/database
+          kubectl apply -f kubernetes/database
 
-          kubectl apply -f k8s/backend
-          kubectl apply -f k8s/frontend
+          kubectl apply -f kubernetes/backend
+          kubectl apply -f kubernetes/frontend
 
-          kubectl apply -f k8s/Ingress
+          kubectl apply -f kubernetes/Ingress
 
 # =========================
 # Email alerts
